@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xml.member">
+	<insert id="insertMember" parameterType="member">
+		insert into member
+		values (#{id}, #{pass}, #{name}, #{gender}, #{tel}, #{email}, #{picture}, sysdate)
+	</insert>
+	
+	<select id="count" resultType="int">
+		select count(*) from kicmember
+	</select>
+	
+	<select id="memberList" resultType="member">
+		select * from kicmember
+	</select>
+</mapper>

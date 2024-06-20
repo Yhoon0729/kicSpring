@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+             http://www.springframework.org/schema/beans/spring-beans.xsd
+             http://www.springframework.org/schema/mvc
+             http://www.springframework.org/schema/mvc/spring-mvc.xsd
+             http://www.springframework.org/schema/context
+             http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:component-scan base-package="controller, dao" />
+	<context:annotation-config />
+
+	<mvc:annotation-driven />
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/view/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass">
+			<value>oracle.jdbc.OracleDriver</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>jdbc:oracle:thin:@localhost:1521:xe</value>
+		</property>
+		<property name="user">
+			<value>kic24</value>
+		</property>
+		<property name="password">
+			<value>1234</value>
+		</property>
+		<property name="maxPoolSize">
+			<value>20</value>
+		</property><!-- 최대 연결 객체 갯수 -->
+		<property name="minPoolSize">
+			<value>3</value>
+		</property> <!-- 최소 연결 객체 갯수 -->
+		<property name="initialPoolSize">
+			<value>5</value>
+		</property> <!-- 초기 연결 객체 갯수 -->
+		<property name="acquireIncrement">
+			<value>5</value>
+		</property> <!-- 연결 객체 증가 갯수 -->
+	</bean>
+	<!-- mybatis db -->
+
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:util/mybatis-config.xml" />
+	</bean>
+	
+	<bean class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+
+</beans>
