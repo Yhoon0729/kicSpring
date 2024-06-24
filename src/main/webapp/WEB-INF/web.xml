@@ -17,6 +17,7 @@
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
 	<!-- container이름 지정 안하면 default로 dispatcher-servlet.xml을 찾음 -->
 	<!-- path 방식 -->
 	<servlet-mapping>

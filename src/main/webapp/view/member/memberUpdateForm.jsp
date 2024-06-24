@@ -55,7 +55,7 @@ function win_upload() {
 					<div class="row">
 						<div class="col-md-3 mb-3">
 							<label for="id">사진</label> <img src="" width="100px"
-								height="120px" id="pic" name="pic">
+								height="120px" id="picture" name="picture">
 							<button class="btn btn-primary btn-block" onclick="win_upload()">사진업로드</button>
 						</div>
 						<div class="col-md-9 mb-3">

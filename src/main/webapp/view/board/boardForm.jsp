@@ -97,10 +97,9 @@ function chkpass(f) {
 					</div>	
 					
 					<div class="mb-3">
-						<label for="email">파일 업로드</label> 
+						<label for="file2">파일 업로드</label> 
 						<input type="file"  class="form-control" 
-						id="file1"  name="file1"  
-							>
+						id="file2"  name="file2">
 						
 					</div>
 					

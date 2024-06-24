@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <script>
-let img = opener.document.getElementById("pic")
+let img = opener.document.getElementById("picture")
 img.src
 ="${pageContext.request.contextPath}/img/member/picture/${filename}";
 alert(img.src)

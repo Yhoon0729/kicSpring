@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import dao.KicBoardMybatis;
 import model.Comment;
@@ -23,20 +26,24 @@ public class BoardController {
 
 	HttpSession session;
 	HttpServletRequest request;
-	
+
 	@Autowired
 	KicBoardMybatis mybatisdao = new KicBoardMybatis();
 
 	@ModelAttribute
-	protected void service(HttpServletRequest request)throws ServletException, IOException {
+	protected void service(HttpServletRequest request) throws ServletException, IOException {
 		this.request = request;
 		session = request.getSession();
+		String nav = (String) session.getAttribute("boardid");
+		String boardName = (String) session.getAttribute("boardName");
+		request.setAttribute("nav", nav);
+		request.setAttribute("boardName", boardName);
 	}
 
 	@RequestMapping("index")
 	public String index() throws ServletException, IOException {
 
-		return "/view/index.jsp";
+		return "index";
 	}
 
 	@RequestMapping("boardForm")
@@ -47,42 +54,42 @@ public class BoardController {
 
 	@RequestMapping("boardInfo")
 	public String boardInfo(int num) throws ServletException, IOException {
-	
+
 		// int num = Integer.parseInt(request.getParameter("num"));
 		System.out.println(num);
-		
+
 		mybatisdao.addReadCount(num); // readcnt++
-		
+
 		int count = mybatisdao.getCommentCount(num);
 		KicBoard board = mybatisdao.getBoard(num);
 		List<Comment> li = mybatisdao.commentList(num);
-		
+
 		request.setAttribute("board", board);
 		request.setAttribute("li", li);
 		request.setAttribute("count", count);
 		return "board/boardInfo";
 	}
-	
+
 	@RequestMapping("boardCommentPro")
-	public String boardCommentPro(String comment, int boardnum)throws ServletException, IOException {
+	public String boardCommentPro(String comment, int boardnum) throws ServletException, IOException {
 		// String comment = request.getParameter("comment");
 		// int boardnum = Integer.parseInt(request.getParameter("boardnum"));
 		request.setAttribute("boardnum", boardnum);
 		request.setAttribute("comment", comment);
-		
+
 		mybatisdao.insertComment(boardnum, comment);
 		int count = mybatisdao.getCommentCount(boardnum);
-		
+
 		request.setAttribute("comment", comment);
 		request.setAttribute("count", count);
-		
-		return "/single/boardCommentPro.jsp";
+
+		return "/single/boardCommentPro";
 	} // end of boardCommentPro
 
 	@RequestMapping("boardUpdateForm")
 	public String boardUpdateForm(int num) throws ServletException, IOException {
 		// http://localhost:8080/kicmodel2/board/boardInfo?num=10
-		
+
 		// int num = Integer.parseInt(request.getParameter("num"));
 		System.out.println(num);
 		KicBoard board = mybatisdao.getBoard(num);
@@ -91,35 +98,31 @@ public class BoardController {
 		return "board/boardUpdateForm";
 	}
 
-	/*
+	
 	@RequestMapping("boardUpdatePro")
-	public String boardUpdatePro(HttpServletRequest request, HttpServletResponse response)
+	public String boardUpdatePro(@RequestParam("file2") MultipartFile multipartFile, KicBoard kicboard)
 			throws ServletException, IOException {
-		// http://localhost:8080/kicmodel2/board/boardInfo?num=10
 		String path = request.getServletContext().getRealPath("/") + "img/board/";
-		MultipartRequest multi = new MultipartRequest(request, path, 10 * 1024 * 1024, "UTF-8");
-		int num = Integer.parseInt(multi.getParameter("num"));
-		String pass = multi.getParameter("pass");
-		System.out.println(num);
-		KicBoard board = new KicBoard();
-		KicBoard boarddb = mybatisdao.getBoard(num);
-		board.setNum(num);
-		board.setContent(multi.getParameter("content"));
-		board.setSubject(multi.getParameter("subject"));
-		board.setName(multi.getParameter("name"));
-		if (multi.getFilesystemName("file1") == null)
-			board.setFile1(multi.getParameter("originfile"));
-		else
-			board.setFile1(multi.getFilesystemName("file1"));
+		KicBoard boarddb = mybatisdao.getBoard(kicboard.getNum());
+		String filename = "";
+		if (!multipartFile.isEmpty()) {
+			File file = new File(path, multipartFile.getOriginalFilename());
+			filename = multipartFile.getOriginalFilename();
+			multipartFile.transferTo(file);
+			kicboard.setFile1(filename);
+		} else {
+			kicboard.setFile1(boarddb.getFile1());
+		}
+
 		String msg = "수정 되지 않았습니다";
-		String url = "boardUpdateForm?num=" + num;
+		String url = "boardUpdateForm?num=" + kicboard.getNum();
 		System.out.println(boarddb);
 		if (boarddb != null) {
-			if (pass.equals(boarddb.getPass())) {
-				int count = mybatisdao.boardUpdate(board);
+			if (kicboard.getPass().equals(boarddb.getPass())) {
+				int count = mybatisdao.boardUpdate(kicboard);
 				if (count == 1) {
 					msg = "수정 되었습니다";
-					url = "boardInfo?num=" + num;
+					url = "boardInfo?num=" + kicboard.getNum();
 				}
 			} else {
 				msg = "비밀번호 확인 하세요";
@@ -129,24 +132,25 @@ public class BoardController {
 		}
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
-		return "/view/alert.jsp";
-	}
+		return "alert";
+	} // end of boardUpdatePro
+	
 
 	@RequestMapping("boardPro")
-	public String boardPro(HttpServletRequest request, HttpServletResponse response)
+	public String boardPro(@RequestParam("file2") MultipartFile multipartFile, KicBoard kicboard)
 			throws ServletException, IOException {
 		String path = request.getServletContext().getRealPath("/") + "img/board/";
 
-		MultipartRequest multi = new MultipartRequest(request, path, 10 * 1024 * 1024, "UTF-8");
-		String boardid = (String) session.getAttribute("boardid");// 1
-		KicBoard kicboard = new KicBoard();
-		kicboard.setName(multi.getParameter("name"));
-		kicboard.setPass(multi.getParameter("pass"));
-		kicboard.setSubject(multi.getParameter("subject"));
-		kicboard.setContent(multi.getParameter("content"));
-		kicboard.setFile1(multi.getFilesystemName("file1"));
-		kicboard.setBoardid(boardid); // 2
-		System.out.println(kicboard);
+		String filename = "";
+		if (!multipartFile.isEmpty()) {
+			File file = new File(path, multipartFile.getOriginalFilename());
+			filename = multipartFile.getOriginalFilename();
+			multipartFile.transferTo(file);
+		}
+
+		String boardid = (String) session.getAttribute("boardid");
+		kicboard.setBoardid(boardid);
+		kicboard.setFile1(filename);
 		int num = mybatisdao.insertBoard(kicboard);
 		String msg = "게시물 등록 성공";
 		String url = "boardList?boardid=" + boardid;
@@ -155,25 +159,24 @@ public class BoardController {
 		}
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
-		return "/view/alert.jsp";
+		return "alert";
 	}
-	*/
 
 	@RequestMapping("boardList")
 	public String boardList(String boardid, String pageNum) throws ServletException, IOException {
-		
+
 		// String boardid = request.getParameter("boardid");
 		session.setAttribute("boardid", boardid);
-		if(session.getAttribute("boardid")==null) {
-			boardid="1";
+		if (session.getAttribute("boardid") == null) {
+			boardid = "1";
 		}
-		
+
 		// String pageNum = request.getParameter("pageNum");
 		session.setAttribute("pageNum", pageNum);
-		if(session.getAttribute("pageNum")==null) {
-			pageNum="1";
+		if (session.getAttribute("pageNum") == null) {
+			pageNum = "1";
 		}
-		
+
 		String boardName = "";
 		switch (boardid) {
 		case "1":
@@ -188,36 +191,35 @@ public class BoardController {
 		default:
 			boardName = "공지사항";
 		}
-		
+
 		session.setAttribute("boardName", boardName);
 		int count = mybatisdao.boardCount(boardid);
 		int limit = 3;
 		int pageInt = Integer.parseInt(pageNum); // 페이지 목록 번호
-		int boardNum = count - ((pageInt-1)*limit); // 각 페이지의 첫번째 게시글
-		
+		int boardNum = count - ((pageInt - 1) * limit); // 각 페이지의 첫번째 게시글
+
 		int bottomLine = 3; // 하단 페이지 목록 갯수
 		int start = (pageInt - 1) / bottomLine * bottomLine + 1; // 하단 페이지 목록에서 start 페이지 번호
 		int end = start + limit - 1; // 하단 페이지 목록 마지막 페이지 번호
-		int maxPage = (int)Math.ceil((double)count/(double)limit); // 페이지 목록 갯수
-		if(end>maxPage) {
+		int maxPage = (int) Math.ceil((double) count / (double) limit); // 페이지 목록 갯수
+		if (end > maxPage) {
 			end = maxPage;
 		}
-		
+
 		List<KicBoard> li = mybatisdao.boardList(boardid, pageInt, limit);
-		
+
 		request.setAttribute("bottomLine", bottomLine);
 		request.setAttribute("start", start);
 		request.setAttribute("end", end);
 		request.setAttribute("maxPage", maxPage);
 		request.setAttribute("pageInt", pageInt);
 		request.setAttribute("boardNum", boardNum);
-		
+
 		request.setAttribute("boardName", boardName);
 		request.setAttribute("li", li);
 		request.setAttribute("boardid", boardid);
 		request.setAttribute("nav", boardid);
 		request.setAttribute("count", count);
-		
 
 		return "board/boardList";
 	} // end of boardList
@@ -229,8 +231,7 @@ public class BoardController {
 	}
 
 	@RequestMapping("boardDeletePro")
-	public String boardDeletePro(int num, String pass)
-			throws ServletException, IOException {
+	public String boardDeletePro(int num, String pass) throws ServletException, IOException {
 		// int num = Integer.parseInt(request.getParameter("num"));
 		// String pass = request.getParameter("pass");
 		String boardid = (String) session.getAttribute("boardid"); // 1
@@ -252,7 +253,7 @@ public class BoardController {
 		}
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
-		return "/view/alert.jsp";
+		return "alert";
 	}
 
 }

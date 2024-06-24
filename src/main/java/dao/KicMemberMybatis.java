@@ -30,19 +30,19 @@ public class KicMemberMybatis {
 
 	public int insertMember(KicMember kic) {
 		int num = session.getMapper(MemberAnno.class).insertMember(kic);
-		session.commit();
+		
 		return num;
 	} // end of insertMember()
 
 	public int updateMember(KicMember kic) {
 		int num = session.getMapper(MemberAnno.class).updateMember(kic);
-		session.commit();
+		
 		return num;
 	}
 	
 	public int deleteMember(String id) {
 		int num = session.getMapper(MemberAnno.class).deleteMember(id);
-		session.commit();
+		
 		return num;
 	}
 	
@@ -52,7 +52,7 @@ public class KicMemberMybatis {
 		map.put("modPass", modPass);
 		
 		int num = session.getMapper(MemberAnno.class).modifyPass(map);
-		session.commit();
+		
 		return num;
 	}
 }

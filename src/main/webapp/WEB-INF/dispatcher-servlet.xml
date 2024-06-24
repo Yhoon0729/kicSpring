@@ -13,7 +13,11 @@
 	<context:component-scan base-package="controller, dao" />
 	<context:annotation-config />
 
+	<!-- css, js, html 웹에서 제공되는 파일의 기본 기능 제외 -->
+	<mvc:default-servlet-handler/>
+	
 	<mvc:annotation-driven />
+	
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/view/" />
@@ -60,5 +64,9 @@
 	<bean class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg ref="sqlSessionFactory" />
 	</bean>
-
+	
+	<bean id="multipartResolver" 
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8"></property>
+	</bean>
 </beans>

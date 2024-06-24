@@ -56,7 +56,7 @@ function chkpass(f) {
 				<form class="validation-form" novalidate  enctype="multipart/form-data"
 				    action="boardUpdatePro"   method="post"    onsubmit="return chkpass(this)">
 					<input type="hidden"  name="num"  value="${board.num }"/>
-					<input type="hidden"  name="originfile"  value="${board.file1 }"/>
+					<input type="hidden"  name="file1"  value="${board.file1 }"/>
 					<div class="row">
 					  
 						
@@ -96,7 +96,7 @@ function chkpass(f) {
 					<div class="mb-3">
 						<label for="email">파일 업로드:${board.file1 }</label> 
 						<input type="file"     
-							class="form-control" id="file1"  name="file1"  
+							class="form-control" id="file2"  name="file2"  
 							>
 						
 					</div>

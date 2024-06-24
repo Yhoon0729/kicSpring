@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import dao.KicMemberMybatis;
 import model.KicMember;
@@ -71,7 +74,7 @@ public class MemberController {
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
 
-		return "/view/alert.jsp";
+		return "alert";
 	} // end of joinPro()
 
 	@RequestMapping("joinInfo")
@@ -82,7 +85,7 @@ public class MemberController {
 
 		request.setAttribute("mem", mem);
 		request.setAttribute("nav", "joinInfo");
-		return "/view/member/joinInfo.jsp";
+		return "member/joinInfo";
 	} // end of joinInfo()
 
 	@RequestMapping("login")
@@ -96,7 +99,7 @@ public class MemberController {
 		session.invalidate();
 		request.setAttribute("msg", "로그아웃 되었습니다.");
 		request.setAttribute("url", "index");
-		return "/view/alert.jsp";
+		return "alert";
 	} // end of logout()
 
 	@RequestMapping("loginPro")
@@ -138,7 +141,7 @@ public class MemberController {
 		KicMember mem = mybatisdao.getMember(id);
 		request.setAttribute("mem", mem);
 
-		return "/view/member/memberUpdateForm.jsp";
+		return "member/memberUpdateForm";
 	} // end of memberUpdateForm()
 
 	@RequestMapping("memberUpdatePro")
@@ -171,12 +174,12 @@ public class MemberController {
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
 
-		return "/view/alert.jsp";
+		return "alert";
 	} // end of memberUpdatePro()
 
 	@RequestMapping("memberDeleteForm")
 	public String memberDeleteForm() throws ServletException, IOException {
-		return "/view/member/memberDeleteForm.jsp";
+		return "member/memberDeleteForm";
 	} // end of memberDeleteForm()
 
 	@RequestMapping("memberDeletePro")
@@ -207,13 +210,13 @@ public class MemberController {
 		request.setAttribute("msg", msg);
 		request.setAttribute("url", url);
 
-		return "/view/alert.jsp";
+		return "alert";
 	} // end of memberDeletePro()
 
 	@RequestMapping("memberPassForm")
 	public String memberPassForm() throws ServletException, IOException {
 
-		return "/view/member/memberPassForm.jsp";
+		return "member/memberPassForm";
 	} // end of memberPassForm()
 
 	@RequestMapping("memberPassPro")
@@ -244,7 +247,7 @@ public class MemberController {
 		m.addAttribute("msg", msg);
 		m.addAttribute("url", url);
 
-		return "/view/alert.jsp";
+		return "alert";
 	} // end of join()
 
 	@RequestMapping("memberList")
@@ -252,33 +255,33 @@ public class MemberController {
 		List<KicMember> li = mybatisdao.memberList();
 
 		request.setAttribute("li", li);
-		return "/view/member/memberList.jsp";
+		return "member/memberList";
 	} // end of memberList()
 
 	@RequestMapping("pictureimgForm")
 	public String pictureimgForm() throws ServletException, IOException {
-		return "/single/pictureimgForm.jsp";
+		return "../single/pictureimgForm";
 	} // end of pictureimgForm()
 
-	/*
+	
 	@RequestMapping("picturePro")
-	public String picturePro(HttpServletRequest request, HttpServletResponse response)
+	public String picturePro(@RequestParam("picture") MultipartFile multipartFile)
 			throws ServletException, IOException {
 		String path = request.getServletContext().getRealPath("/") + "/img/member/picture/";
 		System.out.println(path);
-
-		String filename = null;
-
-		MultipartRequest multi = new MultipartRequest(request, path, 10 * 1024 * 1024, "UTF-8");
-
-		filename = multi.getFilesystemName("picture");
+		String filename = "";
+		if (!multipartFile.isEmpty()) {
+			File file = new File(path, multipartFile.getOriginalFilename());
+			filename = multipartFile.getOriginalFilename();
+			multipartFile.transferTo(file);
+		}
 
 		System.out.println(filename);
 		request.setAttribute("filename", filename);
 
-		return "/single/picturePro.jsp";
+		return "../single/picturePro";
 	} // end of picturePro()
-	*/
+	
 
 	@RequestMapping("fortunePro")
 	public String fortunePro(HttpServletRequest request, HttpServletResponse response)
@@ -288,7 +291,7 @@ public class MemberController {
 			// 로그인되어 있지 않으면 로그인 페이지로 이동
 			request.setAttribute("msg", "로그인 후에 운세를 확인할 수 있습니다.");
 			request.setAttribute("url", "login");
-			return "/view/alert.jsp";
+			return "alert";
 		}
 
 		// 로그인되어 있으면 운세를 확인할 수 있도록 처리
@@ -298,6 +301,6 @@ public class MemberController {
 
 		// 운세를 확인하는 코드
 
-		return "/view/content/fortuneResult.jsp";
+		return "content/fortuneResult";
 	} // end of fortunePro()
 }

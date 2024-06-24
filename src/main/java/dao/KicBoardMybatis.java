@@ -20,7 +20,6 @@ public class KicBoardMybatis {
 	
 	public int insertBoard(KicBoard kicboard) {
 		int num = session.getMapper(BoardAnno.class).insertBoard(kicboard);
-		session.commit();
 		return num;
 	}
 	
@@ -41,7 +40,6 @@ public class KicBoardMybatis {
 	
 	public int addReadCount(int num) {
 		int count = session.getMapper(BoardAnno.class).addReadCount(num);
-		session.commit();
 		return count;
 	}
 	
@@ -51,7 +49,7 @@ public class KicBoardMybatis {
 		map.put("content", comment);
 		
 		int num = session.getMapper(BoardAnno.class).insertComment(map);
-		session.commit();
+		
 		return num;
 	}
 	
@@ -72,13 +70,12 @@ public class KicBoardMybatis {
 	
 	public int boardUpdate(KicBoard board) {
 		int num = session.getMapper(BoardAnno.class).boardUpdate(board);
-		session.commit();
 		return num;
 	}
 	
 	public int boardDelete(int num) {
 		int count = session.getMapper(BoardAnno.class).boardDelete(num);
-		session.commit();
+		
 		return count;
 	}
 	
